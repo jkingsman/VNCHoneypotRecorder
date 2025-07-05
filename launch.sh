@@ -11,28 +11,28 @@ run_container() {
     echo "[$(date)] Starting VNC honeypot container (will restart in 10 minutes)..."
 
     docker run --rm \
-        -p 5905:5900 \
+        -p 5900:5900 \
         --network host \
         -v "$LOCAL_RECORDINGS_DIR:/recordings" \
         -e RECORDINGS_DIR=/recordings \
         -e X11VNC_CREATE_GEOM="${X11VNC_CREATE_GEOM:-1024x768x16}" \
         --name vnc-honeypot \
         vnchoneypot &
-    
+
     DOCKER_PID=$!
-    
+
     # wait for 10 minutes or until interrupted
     SECONDS=0
     while [ $SECONDS -lt 600 ] && kill -0 $DOCKER_PID 2>/dev/null; do
         sleep 1
     done
-    
+
     # if container is still running after 10 minutes, stop it
     if kill -0 $DOCKER_PID 2>/dev/null; then
         echo "[$(date)] Container timeout reached, stopping gracefully..."
         docker stop vnc-honeypot 2>/dev/null || true
     fi
-    
+
     # wait for docker process to finish
     wait $DOCKER_PID 2>/dev/null
 }
