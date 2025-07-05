@@ -12,6 +12,7 @@ run_container() {
 
     docker run --rm \
         -p 5905:5900 \
+        --network host \
         -v "$LOCAL_RECORDINGS_DIR:/recordings" \
         -e RECORDINGS_DIR=/recordings \
         -e X11VNC_CREATE_GEOM="${X11VNC_CREATE_GEOM:-1024x768x16}" \
