@@ -14,7 +14,20 @@ has_vnc_connections() {
 
 # grabs first connected IP for filename
 get_client_ip() {
-    netstat -tn 2>/dev/null | grep ":5900.*ESTABLISHED" | head -1 | awk '{print $5}' | cut -d: -f1
+    # Get the remote address (IP:port) from netstat
+    remote_addr=$(netstat -tn 2>/dev/null | grep ":5900.*ESTABLISHED" | head -1 | awk '{print $5}')
+    
+    # Handle IPv6 addresses (enclosed in brackets) and IPv4 addresses
+    if [[ "$remote_addr" =~ ^\[(.+)\]:([0-9]+)$ ]]; then
+        # IPv6 format: [2001:db8::1]:12345
+        echo "${BASH_REMATCH[1]}" | tr ':' '_'  # Replace colons with underscores for filename compatibility
+    elif [[ "$remote_addr" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)$ ]]; then
+        # IPv4 format: 192.168.1.1:12345
+        echo "${BASH_REMATCH[1]}"
+    else
+        # Fallback: try to extract everything before the last colon
+        echo "$remote_addr" | sed 's/:[^:]*$//' | tr ':' '_'
+    fi
 }
 
 start_recording() {
