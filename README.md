@@ -8,4 +8,10 @@ Any time someone connects, it records their session to `./recordings` with their
 
 The container automatically restarts every 10 minutes to avoid becoming a permanent botnet node.
 
+## Getting rid of lame videos
+
+Many attackers just connect and disconnect without doing anything. To clean up these recordings run `./filter-no-motion-videos.sh` which checks for motion and removes empty vids.
+
+## Why?
+
 Big ups to [@Xtrato](https://x.com/Xtrato/status/1939222218107445715) for the inspiration.
