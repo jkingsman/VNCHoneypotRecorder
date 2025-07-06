@@ -44,7 +44,7 @@ cleanup() {
     echo -e "\n[$(date)] Stopping VNC honeypot..."
     RUNNING=false
     docker stop vnc-honeypot 2>/dev/null || true
-    echo "[$(date)] Honeypot stopped. Goodbye!"
+    echo "[$(date)] Container stopped. Exiting..."
     exit 0
 }
 trap cleanup SIGINT SIGTERM

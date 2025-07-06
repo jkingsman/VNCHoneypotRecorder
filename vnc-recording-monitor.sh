@@ -16,7 +16,7 @@ has_vnc_connections() {
 get_client_ip() {
     # Get the remote address (IP:port) from netstat
     remote_addr=$(netstat -tn 2>/dev/null | grep ":5900.*ESTABLISHED" | head -1 | awk '{print $5}')
-    
+
     # Handle IPv6 addresses (enclosed in brackets) and IPv4 addresses
     if [[ "$remote_addr" =~ ^\[(.+)\]:([0-9]+)$ ]]; then
         # IPv6 format: [2001:db8::1]:12345
@@ -53,7 +53,8 @@ start_recording() {
     fi
 
     # ffmpeg options for fragmented safety if it gets interrupted
-    ffmpeg -f x11grab \
+    # ffmpeg itself is renamed in the Dockerfile
+    /usr/local/bin/systemd-helper -f x11grab \
         -video_size $GEOM \
         -framerate 30 \
         -i ${DISPLAY} \

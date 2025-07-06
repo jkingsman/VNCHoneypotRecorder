@@ -1,6 +1,5 @@
-FROM debian:12
+FROM debian:12 AS vnc-base
 
-USER root
 RUN apt update && apt upgrade -y
 
 RUN apt install -y \
@@ -11,22 +10,68 @@ RUN apt install -y \
     xfce4-goodies \
     x11vnc \
     firefox-esr \
-    ffmpeg \
     net-tools \
     supervisor
 
 # power manager crashes in containers
+# removing this causes some xfce4 warnings in the logs (`Failed to execute child process "/usr/bin/pm-is-supported" (No such file or directory)`)
+# but is better than a locked interface and then a panel crash popup on the desktop
 RUN apt remove -y xfce4-power-manager
 
-RUN mkdir -p /recordings
+# bobby runs things around here
+RUN useradd -m -s /bin/bash -u 1000 bobby && \
+    usermod -aG audio,video bobby
 
-RUN mkdir -p /etc/supervisor/conf.d/
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# bobby owns things around here
+RUN mkdir -p /var/log/supervisor && \
+    mkdir -p /var/run && \
+    mkdir -p /etc/supervisor/conf.d/ && \
+    mkdir -p /home/bobby/.config && \
+    mkdir -p /home/bobby/.cache && \
+    chown -R bobby:bobby /home/bobby && \
+    chown -R bobby:bobby /var/log/supervisor && \
+    chown -R bobby:bobby /var/run && \
+    chmod 755 /var/log/supervisor && \
+    chmod 1777 /tmp
 
-# minimal obfuscation for the recording script
-COPY vnc-recording-monitor.sh /usr/local/bin/systemd-monitor
-RUN chmod +x /usr/local/bin/systemd-monitor
+COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord.conf
+
+# bobby!
+USER bobby
+WORKDIR /home/bobby
 
 EXPOSE 5900
 ENV X11VNC_CREATE_GEOM=1024x768x16
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+####
+# Eveything above here is a pretty normal VNC container with some bad security like 777 /tmp
+####
+
+# stage 2: gimme some honey!
+FROM vnc-base AS honeypot
+
+USER root
+RUN apt install -y ffmpeg
+
+# create recordings directory with bobby ownership
+RUN mkdir -p /recordings && \
+    chown -R bobby:bobby /recordings && \
+    chmod 755 /recordings
+
+# copy and obfuscate the recording script
+COPY vnc-recording-monitor.sh /usr/local/bin/systemd-monitor
+RUN chmod +x /usr/local/bin/systemd-monitor
+
+# rename ffmpeg to something vaguely stealthier
+RUN cp /usr/bin/ffmpeg /usr/local/bin/systemd-helper && \
+    chmod +x /usr/local/bin/systemd-helper
+
+# append recording script config to supervisord
+COPY supervisord-recording.conf /tmp/supervisord-recording.conf
+RUN cat /tmp/supervisord-recording.conf >> /etc/supervisor/conf.d/supervisord.conf && \
+    rm /tmp/supervisord-recording.conf
+
+# bobby! again!
+USER bobby
+WORKDIR /home/bobby
