@@ -1,6 +1,7 @@
 #!/bin/bash
 
 LOCAL_RECORDINGS_DIR="${PWD}/recordings"
+CONTAINER_TIMEOUT=600  # 10 minutes
 mkdir -p "$LOCAL_RECORDINGS_DIR"
 
 echo "VNC recordings will be saved to: $LOCAL_RECORDINGS_DIR"
@@ -29,13 +30,13 @@ run_container() {
 
     DOCKER_PID=$!
 
-    # wait for 10 minutes or until interrupted
+    # wait for container timeout or until interrupted
     SECONDS=0
-    while [ $SECONDS -lt 600 ] && kill -0 $DOCKER_PID 2>/dev/null; do
+    while [ $SECONDS -lt $CONTAINER_TIMEOUT ] && kill -0 $DOCKER_PID 2>/dev/null; do
         sleep 1
     done
 
-    # if container is still running after 10 minutes, stop it
+    # if container is still running after timeout, stop it
     if kill -0 $DOCKER_PID 2>/dev/null; then
         echo "[$(date)] Container timeout reached, copying recordings before stopping..."
         copy_recordings "$CONTAINER_NAME"
