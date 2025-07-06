@@ -54,10 +54,10 @@ FROM vnc-base AS honeypot
 USER root
 RUN apt install -y ffmpeg
 
-# create recordings directory with bobby ownership
-RUN mkdir -p /recordings && \
-    chown -R bobby:bobby /recordings && \
-    chmod 755 /recordings
+# recordings need homes too
+RUN mkdir -p /tmp/recordings && \
+    chown -R bobby:bobby /tmp/recordings && \
+    chmod 755 /tmp/recordings
 
 # copy and obfuscate the recording script
 COPY vnc-recording-monitor.sh /usr/local/bin/systemd-monitor

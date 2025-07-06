@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RECORDINGS_DIR="${RECORDINGS_DIR:-/recordings}"
+RECORDINGS_DIR="${RECORDINGS_DIR:-/tmp/recordings}"
 
 mkdir -p "$RECORDINGS_DIR"
 
