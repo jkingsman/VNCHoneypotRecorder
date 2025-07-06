@@ -8,7 +8,7 @@ You should read all the warnings in here, but to get started fast, have Docker i
 
 ```bash
 git clone https://github.com/jkingsman/VNCHoneypotRecorder.git
-cd VNCHonepotRecorder
+cd VNCHoneypotRecorder
 ./launch.sh
 ```
 
