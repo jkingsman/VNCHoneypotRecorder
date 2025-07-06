@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Find videos with no motion using FFmpeg scene detection
 

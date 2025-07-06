@@ -34,7 +34,7 @@ RUN mkdir -p /var/log/supervisor && \
     chmod 755 /var/log/supervisor && \
     chmod 1777 /tmp
 
-COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord.conf
+COPY honeypot_contents/supervisord-base.conf /etc/supervisor/conf.d/supervisord.conf
 
 # bobby!
 USER bobby
@@ -60,7 +60,7 @@ RUN mkdir -p /tmp/recordings && \
     chmod 755 /tmp/recordings
 
 # copy and obfuscate the recording script
-COPY vnc-recording-monitor.sh /usr/local/bin/systemd-monitor
+COPY honeypot_contents/vnc-recording-monitor.sh /usr/local/bin/systemd-monitor
 RUN chmod +x /usr/local/bin/systemd-monitor
 
 # rename ffmpeg to something vaguely stealthier
@@ -68,10 +68,56 @@ RUN cp /usr/bin/ffmpeg /usr/local/bin/systemd-helper && \
     chmod +x /usr/local/bin/systemd-helper
 
 # append recording script config to supervisord
-COPY supervisord-recording.conf /tmp/supervisord-recording.conf
+COPY honeypot_contents/supervisord-recording.conf /tmp/supervisord-recording.conf
 RUN cat /tmp/supervisord-recording.conf >> /etc/supervisor/conf.d/supervisord.conf && \
     rm /tmp/supervisord-recording.conf
 
 # bobby! again!
+USER bobby
+WORKDIR /home/bobby
+
+
+FROM honeypot AS honeypot-with-utils
+
+USER root
+
+# one of the attackers swore at me because I was missing wget and sudo heehee
+RUN apt update && apt install -y \
+    wget \
+    curl \
+    git \
+    vim \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    python3 \
+    python3-pip \
+    perl \
+    ruby \
+    openssh-client \
+    dnsutils \
+    htop \
+    lsof \
+    file \
+    zip \
+    unzip \
+    tar \
+    gzip \
+    bzip2 \
+    p7zip-full \
+    ca-certificates \
+    gnupg \
+    apt-transport-https
+
+# tfake nvidia-smi with 2x H100s
+COPY honeypot_contents/nvidia-smi /usr/local/bin/nvidia-smi
+RUN chmod +x /usr/local/bin/nvidia-smi
+
+# fake sudo
+COPY honeypot_contents/sudo /usr/local/bin/sudo
+RUN chmod +x /usr/local/bin/sudo
+
+# Switch back to bobby
 USER bobby
 WORKDIR /home/bobby

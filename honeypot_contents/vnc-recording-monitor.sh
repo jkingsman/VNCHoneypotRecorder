@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 RECORDINGS_DIR="${RECORDINGS_DIR:-/tmp/recordings}"
 

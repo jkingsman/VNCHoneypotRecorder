@@ -24,7 +24,9 @@ __We blindly copy files out of an attacker-controlled environment -- you should 
 
 ## What's What
 
-`Dockerfile` stage one build (`vnc-base`) is a vanilla, perfectly "normal" VNC-enabled X11-via-Xfce4 docker container, operated by `supervisord` and the services in `supervisord-base.conf`. It creates and runs as the `bobby` user for better security. Stage 2 (`honeypot`) adds `ffmpeg` (renamed to `systemd-helper`) and brings in the `supervisord-recording.conf` to set up the recording watcher `vnc-recording-monitor` (renamed to `systemd-monitor`) which watches for established port 5900 connections, then records to `/tmp/recordings` inside the container. Recordings are copied to the host before container cleanup in the `./launch.sh` script.
+`Dockerfile` stage one build (`vnc-base`) is a vanilla, perfectly "normal" VNC-enabled X11-via-Xfce4 docker container, operated by `supervisord` and the services in `supervisord-base.conf`. It creates and runs as the `bobby` user for better security. Stage 2 (`honeypot`) adds `ffmpeg` (renamed to `systemd-helper`) and brings in the `supervisord-recording.conf` to set up the recording watcher `vnc-recording-monitor` (renamed to `systemd-monitor`) which watches for established port 5900 connections, then records to `/tmp/recordings` inside the container. Stage 3 adds some goofy scripts and utils that attackers probably expect, and makes a fake `sudo` and `nvidia-smi` that looks like there's $50k of graphics cards attached.
+
+Recordings are copied to the host before container cleanup in the `./launch.sh` script.
 
 ## Getting rid of lame videos
 

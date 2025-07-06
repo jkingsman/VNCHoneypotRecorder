@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 LOCAL_RECORDINGS_DIR="${PWD}/recordings"
 CONTAINER_TIMEOUT=600  # 10 minutes
