@@ -6,7 +6,7 @@ mkdir -p "$LOCAL_RECORDINGS_DIR"
 
 echo "VNC recordings will be saved to: $LOCAL_RECORDINGS_DIR"
 
-docker build -t vnchoneypot .
+docker build -t honeypot-with-utils .
 
 copy_recordings() {
     CONTAINER_NAME=$1
@@ -26,7 +26,7 @@ run_container() {
         --network host \
         -e X11VNC_CREATE_GEOM="${X11VNC_CREATE_GEOM:-1024x768x16}" \
         --name "$CONTAINER_NAME" \
-        vnchoneypot &
+        honeypot-with-utils &
 
     DOCKER_PID=$!
 
