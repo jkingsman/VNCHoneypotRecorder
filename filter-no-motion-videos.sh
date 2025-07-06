@@ -1,8 +1,22 @@
 #!/usr/bin/env bash
 
-# Find videos with no motion using FFmpeg scene detection
+# parse arguments
+AUTO_CONFIRM=false
+RECORDINGS_DIR="./recordings"
 
-RECORDINGS_DIR="${1:-./recordings}"
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -y)
+            AUTO_CONFIRM=true
+            shift
+            ;;
+        *)
+            RECORDINGS_DIR="$1"
+            shift
+            ;;
+    esac
+done
+
 SCENE_THRESHOLD="0.01"
 MIN_SCENE_CHANGES="5"
 
@@ -29,14 +43,21 @@ if [ ${#no_motion_files[@]} -eq 0 ]; then
     exit 0
 fi
 
-# Ask for confirmation
-echo ""
-echo -n "Delete these files? (y/N): "
-read -r response
-
-if [[ "$response" =~ ^[Yy]$ ]]; then
+# check for auto-confirm or ask
+if [ "$AUTO_CONFIRM" = true ]; then
     for file in "${no_motion_files[@]}"; do
         rm "$file"
         echo "Deleted: $(basename "$file")"
     done
+else
+    echo ""
+    echo -n "Delete these files? (y/N): "
+    read -r response
+    
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        for file in "${no_motion_files[@]}"; do
+            rm "$file"
+            echo "Deleted: $(basename "$file")"
+        done
+    fi
 fi
