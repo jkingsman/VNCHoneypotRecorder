@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
-for i in 1 2 3; do
-    echo -n "[sudo] password for $USER: "
-    read -s
-    echo
-    sleep 1
-    [ $i -lt 3 ] && echo "Sorry, try again."
-done
 
-echo "sudo: 3 incorrect password attempts"
-exit 1
+exec "$@"
+
+# alternate: never let them past
+
+# for i in 1 2 3; do
+#     echo -n "[sudo] password for $USER: "
+#     read -s
+#     echo
+#     sleep 1
+#     [ $i -lt 3 ] && echo "Sorry, try again."
+# done
+
+# echo "sudo: 3 incorrect password attempts"
+# exit 1
