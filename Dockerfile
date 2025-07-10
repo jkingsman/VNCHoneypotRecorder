@@ -108,7 +108,8 @@ RUN apt update && apt install -y \
     p7zip-full \
     ca-certificates \
     gnupg \
-    apt-transport-https
+    apt-transport-https \
+    screen
 
 # tfake nvidia-smi with 2x H100s
 COPY honeypot_contents/nvidia-smi /usr/local/bin/nvidia-smi
